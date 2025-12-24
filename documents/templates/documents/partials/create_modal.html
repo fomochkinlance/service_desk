@@ -1,0 +1,129 @@
+<div class="modal-backdrop" onclick="this.remove()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        
+        <div class="modal-header">
+            <h3>Нова заявка</h3>
+            <button class="close-btn" onclick="this.closest('.modal-backdrop').remove()">
+                <i class="ph ph-x"></i>
+            </button>
+        </div>
+
+        <form hx-post="{% url 'documents:create_document' %}"
+              hx-encoding="multipart/form-data"
+              hx-target="#main-content"
+              hx-swap="innerHTML"
+              hx-on::after-request="this.closest('.modal-backdrop').remove()"
+              style="display: flex; flex-direction: column; flex-grow: 1; overflow: hidden;">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                <div class="form-grid">
+                    
+                    <div class="form-group">
+                        <label>{{ form.full_name.label }}</label>
+                        {{ form.full_name }}
+                    </div>
+
+                    <div class="form-group">
+                        <label>{{ form.identifier.label }}</label>
+                        {{ form.identifier }}
+                    </div>
+
+                    <div class="form-group">
+                        <label>{{ form.channel.label }}</label>
+                        {{ form.channel }}
+                    </div>
+
+                    <div class="form-group">
+                        <label>{{ form.request_type.label }}</label>
+                        {{ form.request_type }}
+                    </div>
+
+                    <div class="form-group">
+                        <label>{{ form.department.label }}</label>
+                        {{ form.department }}
+                    </div>
+
+                    <div class="form-group">
+                        <label>{{ form.status.label }}</label>
+                        {{ form.status }}
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>{{ form.comment.label }}</label>
+                        {{ form.comment }}
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>{{ form.file.label }}</label>
+                        <div id="drop-zone" class="drop-zone">
+                            <i class="ph ph-upload-simple" style="font-size: 24px; color: #9ca3af; margin-bottom: 8px;"></i>
+                            <p class="drop-zone-text">Перетягніть файл або клікніть</p>
+                            <p id="file-name" class="drop-zone-file-name"></p>
+                            <div style="opacity: 0; height: 0; overflow: hidden;">
+                                {{ form.file }}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn-primary">Зберегти заявку</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const dropZone = document.getElementById('drop-zone');
+        if (!dropZone) return;
+
+        const fileInput = document.querySelector('input[type="file"]');
+        // Якщо інпут ще не в зоні дропу, переміщуємо його (щоб працював клік по лейблу якщо треба)
+        if (fileInput && !dropZone.contains(fileInput)) {
+             dropZone.appendChild(fileInput);
+        }
+
+        const fileNameDisplay = document.getElementById('file-name');
+        const defaultText = dropZone.querySelector('.drop-zone-text');
+        const icon = dropZone.querySelector('i');
+
+        // Клік по зоні викликає клік по схованому інпуту
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        function updateFileName(files) {
+            if (files && files.length > 0) {
+                fileNameDisplay.textContent = files[0].name;
+                fileNameDisplay.style.display = 'block';
+                if(defaultText) defaultText.style.display = 'none';
+                if(icon) icon.style.display = 'none';
+                dropZone.style.borderColor = '#4b5563';
+                dropZone.style.background = '#e5e7eb';
+            } else {
+                fileNameDisplay.style.display = 'none';
+                if(defaultText) defaultText.style.display = 'block';
+                if(icon) icon.style.display = 'block';
+                dropZone.style.borderColor = '#d1d5db';
+                dropZone.style.background = '#f9fafb';
+            }
+        }
+
+        if(fileInput) {
+            fileInput.addEventListener('change', function() { updateFileName(this.files); });
+        }
+
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault(); 
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length && fileInput) {
+                fileInput.files = e.dataTransfer.files;
+                updateFileName(fileInput.files);
+            }
+        });
+    })();
+</script>

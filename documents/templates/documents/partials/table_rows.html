@@ -1,0 +1,27 @@
+{% for doc in documents %}
+<tr>
+    <td>
+    <button class="action-btn view-btn" title="Переглянути"
+            hx-get="{% url 'documents:document_detail' doc.pk %}"
+            hx-target="#main-content"
+            hx-swap="innerHTML">
+        <i class="ph ph-eye"></i>
+    </button>
+</td>
+    <td>{{ doc.created_at|date:"d.m.Y H:i" }}</td>
+    <td class="full-name">{{ doc.full_name }}</td>
+    <td class="identifier">{{ doc.identifier }}</td>
+    <td>{{ doc.get_channel_display }}</td>
+    <td>{{ doc.get_request_type_display }}</td>
+    <td>{{ doc.department|default:"—" }}</td>
+    <td>{{ doc.get_status_display }}</td>
+    <td class="updated-at">{{ doc.updated_at|date:"d.m.Y H:i" }}</td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="9" class="empty-message">
+        Список порожній<br>
+        <small>Створіть першу заявку кнопкою вище</small>
+    </td>
+</tr>
+{% endfor %}

@@ -1,0 +1,81 @@
+{% load static %}
+
+<nav class="bm-scroll">
+
+    <!-- Документи -->
+    <div class="bm-item has-submenu">
+        <div class="bm-link" onclick="toggleSubmenu(this)">
+            <i class="ph ph-files"></i>
+            <span class="bm-text">Документи</span>
+            <i class="ph ph-caret-down bm-arrow"></i>
+        </div>
+        <div class="bm-tooltip">Документи</div>
+
+        <div class="bm-submenu">
+            <div class="bm-submenu-inner">
+                <a class="bm-sublink" 
+                   hx-get="{% url 'documents:incoming_list' %}" 
+                   hx-target="#main-content">Вхідні</a>
+                <a href="#" class="bm-sublink">Вихідні</a>
+                <a href="#" class="bm-sublink">Архів</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support -->
+    <div class="bm-item has-submenu">
+        <div class="bm-link" onclick="toggleSubmenu(this)">
+            <i class="ph ph-headset"></i>
+            <span class="bm-text">Support</span>
+            <i class="ph ph-caret-down bm-arrow"></i>
+        </div>
+        <div class="bm-tooltip">Support</div>
+
+        <div class="bm-submenu">
+            <div class="bm-submenu-inner">
+                <a href="#" class="bm-sublink"
+                   hx-get="#" hx-target="#main-content">Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+</nav>
+
+<div class="bm-footer">
+    <div class="bm-divider">Інструменти</div>
+
+    <!-- База знань з підменю -->
+    <div class="bm-item has-submenu">
+        <div class="bm-link" onclick="toggleSubmenu(this)">
+            <i class="ph ph-book-open"></i>
+            <span class="bm-text">База знань</span>
+            <i class="ph ph-caret-down bm-arrow"></i>
+        </div>
+        <div class="bm-tooltip">База знань</div>
+
+        <div class="bm-submenu">
+            <div class="bm-submenu-inner">
+                <a href="#" class="bm-sublink"
+                   hx-get="#" hx-target="#main-content">Шаблони</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Калькулятор -->
+    <div class="bm-item">
+        <a href="#" class="bm-link simple" hx-get="#" hx-target="#main-content">
+            <i class="ph ph-calculator"></i>
+            <span class="bm-text">Калькулятор</span>
+        </a>
+        <div class="bm-tooltip">Калькулятор</div>
+    </div>
+
+    <!-- Налаштування -->
+    <div class="bm-item">
+        <a href="#" class="bm-link simple" hx-get="#" hx-target="#main-content">
+            <i class="ph ph-gear"></i>
+            <span class="bm-text">Налаштування</span>
+        </a>
+        <div class="bm-tooltip">Налаштування</div>
+    </div>
+</div>

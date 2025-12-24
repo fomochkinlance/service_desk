@@ -1,0 +1,49 @@
+<table class="data-table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Дата ств.</th>
+            <th>ПІБ Клієнта</th>
+            <th>Ідентифікатор</th>
+            <th>Канал зв'язку</th>
+            <th>Тип</th>
+            <th>Департамент</th>
+            <th>Статус</th>
+            <th>Оновлено</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for doc in documents %}
+        <tr>
+            <td>
+                <button class="action-btn view-btn" title="Переглянути">
+                    <i class="ph ph-eye"></i>
+                </button>
+            </td>
+            <td>{{ doc.created_at|date:"d.m.Y H:i" }}</td>
+            <td class="full-name">{{ doc.full_name }}</td>
+            <td class="identifier">{{ doc.identifier }}</td>
+            <td>{{ doc.get_channel_display }}</td>
+            <td>{{ doc.get_request_type_display }}</td>
+            <td>{{ doc.department|default:"—" }}</td>
+            <td>
+                <span class="badge badge-{{ doc.status }}">{{ doc.get_status_display }}</span>
+            </td>
+            <td class="updated-at">{{ doc.updated_at|date:"d.m.Y H:i" }}</td>
+            <td>
+                <button class="action-btn delete-btn" title="Видалити">
+                    <i class="ph ph-trash"></i>
+                </button>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="10" class="empty-message">
+                Список порожній<br>
+                <small>Створіть першу заявку кнопкою вище</small>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

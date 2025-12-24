@@ -1,0 +1,223 @@
+/* Стилі для сайдбара */
+:root {
+    --bm-text: #4b5563;
+    --bm-text-hover: #111827;
+    --bm-bg-hover: #f3f4f6;
+    --bm-accent: #2563eb;
+    --icon-size: 24px; 
+}
+
+/* Основний контейнер скролу */
+.bm-scroll {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px 0;
+}
+
+.bm-footer {
+    flex-shrink: 0;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    padding-bottom: 15px;
+}
+
+.bm-item {
+    position: relative;
+}
+
+/* === РОЗДІЛЮВАЧ === */
+.bm-divider {
+    padding: 15px 20px 5px 20px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #9ca3af;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+/* === ПОСИЛАННЯ === */
+.bm-link {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    padding: 0;
+    color: var(--bm-text);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-weight: 500;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    position: relative; /* Для позиціонування */
+}
+
+.bm-link:hover {
+    background-color: var(--bm-bg-hover);
+    color: var(--bm-text-hover);
+}
+
+.bm-link i {
+    font-size: var(--icon-size);
+    min-width: 64px; /* Центрування під кнопкою меню */
+    text-align: center;
+    color: #9ca3af;
+    transition: color 0.2s;
+}
+
+.bm-link:hover i {
+    color: var(--bm-accent);
+}
+
+.bm-text {
+    flex-grow: 1;
+    opacity: 1;
+    transition: opacity 0.2s;
+}
+
+.bm-arrow {
+    margin-right: 20px;
+    font-size: 16px !important;
+    min-width: auto !important;
+    transition: transform 0.3s;
+}
+
+/* === АКТИВНИЙ СТАН (Розгорнуте меню) === */
+.bm-item.active > .bm-link {
+    background-color: #eff6ff;
+    color: var(--bm-accent);
+    border-right: 3px solid var(--bm-accent);
+}
+
+.bm-item.active > .bm-link i {
+    color: var(--bm-accent);
+}
+
+.bm-item.active .bm-arrow {
+    transform: rotate(180deg);
+}
+
+.bm-item.active .bm-submenu {
+    display: block;
+}
+
+/* === ПІДМЕНЮ (Стандартне, всередині) === */
+.bm-submenu {
+    display: none;
+    background: #f9fafb;
+    border-top: 1px solid #f3f4f6;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.bm-sublink {
+    display: block;
+    padding: 10px 10px 10px 64px; /* Відступ зліва */
+    color: #4b5563;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.bm-sublink:hover {
+    color: var(--bm-accent);
+    background: #f3f4f6;
+}
+
+/* ================================================================= */
+/* === МАГІЯ ЗГОРНУТОГО СТАНУ (FLYOUT MENU) ======================== */
+/* ================================================================= */
+
+/* 1. Ховаємо текст і стрілки */
+#sidebar-container.collapsed .bm-text,
+#sidebar-container.collapsed .bm-arrow,
+#sidebar-container.collapsed .bm-divider {
+    display: none;
+}
+
+#sidebar-container.collapsed .bm-link {
+    justify-content: flex-start; /* Іконка залишається зліва (центрована через min-width) */
+}
+
+/* 2. Дозволяємо випадати за межі контейнера */
+#sidebar-container.collapsed {
+    overflow: visible !important;
+}
+#sidebar-container.collapsed .bm-scroll {
+    overflow: visible !important;
+}
+
+/* 3. Звичайний тултіп (Тільки для елементів БЕЗ підменю) */
+/* Якщо у елемента НЕМАЄ класу has-submenu, показуємо чорну підказку */
+#sidebar-container.collapsed .bm-item:not(.has-submenu):hover .bm-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+.bm-tooltip {
+    position: absolute;
+    left: 64px; /* Збоку від меню */
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    z-index: 1001;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* 4. ВИПЛИВАЮЧЕ ПІДМЕНЮ (FLYOUT) - Для елементів З підменю */
+
+/* Спочатку скидаємо стилі "внутрішнього" підменю */
+#sidebar-container.collapsed .bm-submenu {
+    display: none; /* Ховаємо за замовчуванням */
+    position: absolute;
+    left: 64px; /* Зсуваємо вправо від сайдбару */
+    top: 0;     /* Рівно навпроти пункту */
+    width: 200px; /* Ширина випадайки */
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-left: 3px solid var(--bm-accent); /* Акцент зліва */
+    box-shadow: 4px 4px 15px rgba(0,0,0,0.1); /* Тінь */
+    border-radius: 0 6px 6px 0;
+    z-index: 2000;
+    padding: 5px 0;
+}
+
+/* При наведенні на .bm-item (батька) показуємо .bm-submenu */
+#sidebar-container.collapsed .bm-item.has-submenu:hover .bm-submenu {
+    display: block !important; /* Примусово показуємо */
+}
+
+/* Стилі посилань всередині випадайки */
+#sidebar-container.collapsed .bm-sublink {
+    padding: 10px 20px; /* Нормальні відступи */
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+#sidebar-container.collapsed .bm-sublink:hover {
+    background: #f3f4f6;
+    color: var(--bm-accent);
+}
+
+/* Додатково: Заголовок у випадайці (назва розділу) */
+/* Ми беремо назву з .bm-tooltip і показуємо її зверху випадайки */
+#sidebar-container.collapsed .bm-item.has-submenu:hover .bm-tooltip {
+    display: block;
+    position: absolute;
+    top: -35px; /* Над випадайкою */
+    left: 64px;
+    opacity: 1;
+    visibility: visible;
+    background: #111827;
+    z-index: 2001;
+    border-radius: 4px;
+}

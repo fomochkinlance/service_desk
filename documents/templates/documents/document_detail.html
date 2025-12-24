@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/document_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+    <!-- Хедер з номером заявки та кнопками -->
+    <div class="detail-header">
+        <h2><i class="ph ph-file-text"></i> Заявка № {{ document.id }}</h2>
+        <div class="detail-actions">
+            <button class="btn-secondary"
+                    hx-get="{% url 'documents:incoming_list' %}"
+                    hx-target="#main-content"
+                    hx-swap="innerHTML">
+                <i class="ph ph-arrow-left"></i> Назад до списку
+            </button>
+            <button class="btn-reset"
+                    hx-get="{% url 'documents:document_detail' document.id %}"
+                    hx-target="#main-content"
+                    hx-swap="innerHTML">
+                <i class="ph ph-arrows-clockwise"></i> Оновити
+            </button>
+        </div>
+    </div>
+
+    <!-- Дві колонки: Редагування (30%) + Вхідна інформація (70%) -->
+    <div class="detail-grid top-grid">
+        <!-- Ліва колонка — Редагування -->
+        <div class="detail-card edit-card">
+            <h3 class="section-title">Редагування</h3>
+            {% if not document.is_closed %}
+                <div class="edit-controls">
+                    <form method="post" class="edit-form">
+                        {% csrf_token %}
+                        <select name="status" class="form-select"
+                                hx-post="{% url 'documents:update_status' document.id %}"
+                                hx-target="#main-content"
+                                hx-swap="innerHTML">
+                            <option value="">Змінити статус...</option>
+                            {% for code, label in status_choices %}
+                                <option value="{{ code }}" {% if document.status == code %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+
+                    <form method="post" class="edit-form">
+                        {% csrf_token %}
+                        <select name="department" class="form-select"
+                                hx-post="{% url 'documents:update_department' document.id %}"
+                                hx-target="#main-content"
+                                hx-swap="innerHTML">
+                            <option value="">Змінити департамент...</option>
+                            {% for dept in departments %}
+                                <option value="{{ dept.id }}" {% if document.department.id == dept.id %}selected{% endif %}>{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+
+                    <form method="post" class="edit-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger"
+                                hx-post="{% url 'documents:close_document' document.id %}"
+                                hx-target="#main-content"
+                                hx-swap="innerHTML">
+                            Завершити заявку
+                        </button>
+                    </form>
+
+
+                </div>
+            {% else %}
+                <p class="closed-notice">Заявка закрита. Редагування неможливе.</p>
+            {% endif %}
+        </div>
+
+        <!-- Права колонка — Вхідна інформація -->
+        <div class="detail-card info-card">
+            <h3 class="section-title">Вхідна інформація</h3>
+            <div class="info-grid">
+                <div><strong>Створив:</strong> {{ document.created_by.get_full_name|default:document.created_by.username }}</div>
+                <div><strong>Дата створення:</strong> {{ document.created_at|date:"d.m.Y H:i" }}</div>
+                <div><strong>ПІБ клієнта:</strong> {{ document.full_name }}</div>
+                <div><strong>Ідентифікатор:</strong> {{ document.identifier }}</div>
+                <div><strong>Канал зв'язку:</strong> {{ document.get_channel_display }}</div>
+                <div><strong>Тип запиту:</strong> {{ document.get_request_type_display }}</div>
+                <div><strong>Департамент:</strong> {{ document.department|default:"—" }}</div>
+                <div><strong>Статус:</strong> <span class="badge badge-{{ document.status }}">{{ document.get_status_display }}</span></div>
+                <div class="full-width">
+                    <strong>Коментар:</strong>
+                    <p class="comment-text">{{ document.comment|default:"—"|linebreaksbr }}</p>
+                </div>
+                {% if document.file %}
+                <div class="full-width">
+                    <strong>Файл:</strong>
+                    <a href="{{ document.file.url }}" target="_blank">Завантажити файл</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Нижня частина — коментарі та історія (буде оновлюватися) -->
+    <div id="lower-section" class="lower-section">
+        <div class="detail-grid bottom-grid">
+            <div class="detail-card comments-card">
+                <h3 class="section-title">Коментарі</h3>
+                <!-- Тут будуть коментарі (додамо пізніше) -->
+                <p>Коментарів поки немає.</p>
+            </div>
+
+            <div class="detail-card history-card">
+                <h3 class="section-title">Історія змін</h3>
+                <p>Історія змін статусу та департаменту (додамо пізніше).</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

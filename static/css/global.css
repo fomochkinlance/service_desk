@@ -1,0 +1,116 @@
+/* Глобальні змінні та базові стилі */
+:root {
+    --header-height: 60px;
+    
+    /* Твій вибір */
+    --sidebar-width: 220px; 
+    
+    /* Ширина згорнутого меню (для вирівнювання іконок) */
+    --sidebar-collapsed-width: 64px;
+    
+    --bg-body: #f3f4f6;
+    --header-bg: #ffffff;
+    --border-color: #e5e7eb;
+    --accent-color: #2563eb;
+    --text-color: #1e293b;
+    --text-secondary: #64748b;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-body);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: var(--text-color);
+}
+
+/* Глобальний хедер */
+#global-header {
+    height: var(--header-height);
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 30px 0 0; /* 0 зліва, бо кнопка сама має ширину */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+/* КНОПКА МЕНЮ */
+#sidebar-toggle {
+    /* Ширина дорівнює ширині згорнутого сайдбару -> Ідеальне вирівнювання */
+    width: var(--sidebar-collapsed-width); 
+    height: 100%;
+    
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    color: #475569;
+    transition: background 0.2s;
+    outline: none;
+}
+
+#sidebar-toggle:hover {
+    background: #f9fafb;
+    color: var(--accent-color);
+}
+
+.app-title {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1.2rem;
+    white-space: nowrap;
+    margin-left: 0;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Основний лейаут */
+#layout-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+#sidebar-container {
+    width: var(--sidebar-width);
+    background: #ffffff;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    z-index: 90;
+    overflow-y: auto; 
+    overflow-x: visible;
+}
+
+#sidebar-container.collapsed {
+    width: var(--sidebar-collapsed-width);
+    overflow: visible;
+}
+
+#main-content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

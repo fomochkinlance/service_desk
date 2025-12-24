@@ -1,0 +1,23 @@
+{% if comments %}
+    <div class="comments-list">
+        {% for comment in comments %}
+        <div class="comment-item">
+            <div class="comment-header">
+                <div class="comment-author">
+                    <i class="ph ph-user-circle"></i>
+                    {{ comment.user.get_full_name|default:comment.user.username }}
+                </div>
+                <div class="comment-date">
+                    {{ comment.created_at|date:"d.m.Y H:i" }}
+                </div>
+            </div>
+            <div class="comment-body">{{ comment.text|linebreaksbr }}</div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div style="color: #9ca3af; text-align: center; padding: 20px;">
+        <i class="ph ph-chat-circle-dots" style="font-size: 32px; margin-bottom: 10px;"></i>
+        <p>Коментарів поки немає</p>
+    </div>
+{% endif %}

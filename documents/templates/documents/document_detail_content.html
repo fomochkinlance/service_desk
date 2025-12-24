@@ -1,0 +1,124 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/document_detail.css' %}">
+
+<div class="detail-page">
+    
+    <div class="detail-header">
+        <div class="header-controls">
+            <button class="btn-icon" title="Назад до списку"
+                    hx-get="{% url 'documents:incoming_list' %}"
+                    hx-target="#main-content"
+                    hx-swap="innerHTML">
+                <i class="ph ph-arrow-left"></i>
+            </button>
+            <button class="btn-icon" title="Оновити дані"
+                    hx-get="{% url 'documents:document_detail' document.id %}"
+                    hx-target="#main-content"
+                    hx-swap="innerHTML">
+                <i class="ph ph-arrows-clockwise"></i>
+            </button>
+        </div>
+        <h2>Заявка № {{ document.id }}</h2>
+    </div>
+
+    {% if not document.is_closed %}
+    <div class="toolbar" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+        <button class="btn-action"
+                hx-get="{% url 'documents:add_comment' document.id %}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML">
+            <i class="ph ph-chat-text"></i> Коментар
+        </button>
+
+        <details class="dropdown-btn">
+            <summary class="btn-action">
+                <i class="ph ph-arrows-down-up"></i> Статус
+            </summary>
+            <div class="dropdown-menu">
+                {% for code, label in status_choices %}
+                    <button class="dropdown-item {% if document.status == code %}active{% endif %}"
+                            hx-post="{% url 'documents:update_status' document.id %}"
+                            hx-vals='{"status": "{{ code }}"}'
+                            hx-target="#main-content"
+                            onclick="this.closest('details').removeAttribute('open')">
+                        {{ label }}
+                    </button>
+                {% endfor %}
+            </div>
+        </details>
+
+        <details class="dropdown-btn">
+            <summary class="btn-action">
+                <i class="ph ph-arrows-down-up"></i> Департамент
+            </summary>
+            <div class="dropdown-menu">
+                {% for dept in departments %}
+                    <button class="dropdown-item {% if document.department_id == dept.id %}active{% endif %}"
+                            hx-post="{% url 'documents:update_department' document.id %}"
+                            hx-vals='{"department": "{{ dept.id }}"}'
+                            hx-target="#main-content"
+                            onclick="this.closest('details').removeAttribute('open')">
+                        {{ dept.name }}
+                    </button>
+                {% endfor %}
+            </div>
+        </details>
+
+        <button class="btn-action">
+            <i class="ph ph-files"></i> Документи
+        </button>
+
+        <button class="btn-action btn-danger-outline" 
+                hx-post="{% url 'documents:close_document' document.id %}"
+                hx-confirm="Ви впевнені, що хочете закрити заявку?">
+            <i class="ph ph-check-circle"></i> Закрити
+        </button>
+    </div>
+    {% endif %}
+
+    <div class="layout-grid">
+        <div class="info-card">
+            <h3 class="section-title">Інформація про заявку</h3>
+            <div class="info-columns-grid">
+                <div class="info-col">
+                    <div class="info-row"><strong>Створив:</strong> {{ document.created_by.get_full_name|default:document.created_by.username|default:"Система" }}</div>
+                    <div class="info-row"><strong>Дата створення:</strong> {{ document.created_at|date:"d.m.Y H:i" }}</div>
+                    <div class="info-row"><strong>Канал зв'язку:</strong> {{ document.get_channel_display }}</div>
+                </div>
+                <div class="info-col">
+                    <div class="info-row"><strong>Клієнт:</strong> {{ document.full_name }}</div>
+                    <div class="info-row"><strong>Ідентифікатор:</strong> <span style="font-family: monospace;">{{ document.identifier }}</span></div>
+                    <div class="info-row"><strong>Тип запиту:</strong> {{ document.get_request_type_display }}</div>
+                </div>
+                <div class="info-col">
+                    <div class="info-row"><strong>Департамент:</strong> {{ document.department|default:"—" }}</div>
+                    <div class="info-row"><strong>Статус:</strong> {{ document.get_status_display }}</div>
+                    <div class="info-row"><strong>Дата оновлення:</strong> {{ document.updated_at|date:"d.m.Y H:i" }}</div>
+                </div>
+            </div>
+            <div class="description-block">
+                <strong>Опис проблеми:</strong>
+                <div class="comment-box">{{ document.comment|default:"Без опису"|linebreaksbr }}</div>
+            </div>
+        </div>
+
+        <div class="bottom-section">
+            <div class="comments-card">
+                <h3 class="section-title">Коментарі</h3>
+                <div id="comments-container">
+                    {% include "documents/partials/comments_list.html" %}
+                </div>
+            </div>
+
+            <div class="history-card">
+                <h3 class="section-title">Історія змін</h3>
+                <div id="history-container">
+                    {% include "documents/partials/history_list.html" %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-container"></div>

@@ -1,0 +1,274 @@
+/* ============================================================= */
+/* 1. ЗАГАЛЬНІ СТИЛІ                                             */
+/* ============================================================= */
+
+body {
+    font-size: 14px;
+    color: #111827;
+    /* Переконайся, що фон сірий, тоді таблиця буде виділятися */
+    background-color: #f3f4f6; 
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    
+    /* ЗМІНА ТУТ: Було center, ставимо flex-end */
+    /* Це притисне кнопку до низу, рівно навпроти пошуку */
+    align-items: flex-end; 
+    
+    margin-bottom: 20px;
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 5px;
+}
+
+.page-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-left-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.search-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* ============================================================= */
+/* 2. ГЛОБАЛЬНИЙ ПОШУК                                           */
+/* ============================================================= */
+
+.global-search-form {
+    position: relative;
+    width: 320px;
+}
+
+.global-search-input {
+    width: 100%;
+    padding: 8px 35px 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background: white; /* Явно білий фон */
+}
+
+.global-search-input:focus {
+    outline: none;
+    border-color: #4b5563;
+}
+
+.btn-global-search {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.btn-primary {
+    background: #374151;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 400;
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    background: #111827;
+}
+
+.btn-reset {
+    background: #fff;
+    border: 1px solid #9ca3af;
+    color: #374151;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-reset:hover {
+    background: #f3f4f6;
+}
+
+/* ============================================================= */
+/* 3. ТАБЛИЦЯ (CARD STYLE)                                       */
+/* ============================================================= */
+
+.table-container {
+    background: white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    
+    /* Обмеження ширини і центрування */
+    max-width: 1600px; 
+    width: 100%;
+    margin: 0 auto; 
+    
+    overflow-x: auto;
+}
+
+.data-table {
+    /* Таблиця розтягується на всю ширину картки */
+    width: 100%; 
+    /* Мінімальна ширина, щоб контент не сплющило на малих екранах */
+    min-width: 1300px; 
+    border-collapse: collapse;
+    table-layout: fixed; /* Слухається width у colgroup */
+    font-size: 14px;
+}
+
+.data-table th,
+.data-table td {
+    border-bottom: 1px solid #e5e7eb;
+    border-right: 1px solid #f3f4f6;
+    padding: 12px 10px; /* Трохи менше по боках, щоб більше влазило */
+    text-align: left;
+    vertical-align: middle;
+    color: #111827;
+    background: white;
+    
+    /* Текст не переноситься, а обрізається "..." */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 400;
+}
+
+.data-table th:last-child,
+.data-table td:last-child {
+    border-right: none;
+}
+
+.data-table thead th {
+    background: #f9fafb;
+    color: #111827;
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.column-search-input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: inherit;
+    box-sizing: border-box;
+    background: #fff;
+}
+
+.column-search-input:focus {
+    outline: none;
+    border-color: #4b5563;
+}
+
+.full-name { color: #111827; font-weight: 500; }
+.identifier { font-family: monospace; font-size: 13px; color: #4b5563; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; }
+.updated-at { color: #6b7280; }
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: #9ca3af;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    transition: color 0.2s;
+}
+
+.action-btn:hover { color: #2563eb; }
+
+.empty-message {
+    text-align: center;
+    padding: 60px;
+    color: #6b7280;
+}
+
+/* ... МОДАЛКА (без змін, залишаємо попередній варіант) ... */
+.modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
+.modal-content { background: white; border-radius: 8px; width: 700px; max-width: 95%; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+.modal-header { padding: 15px 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 600; }
+.close-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #6b7280; padding: 4px; }
+.close-btn:hover { color: #111827; }
+.modal-body { padding: 20px; overflow-y: auto; flex-grow: 1; }
+.modal-footer { padding: 15px 20px; background: #f9fafb; border-top: 1px solid #e5e7eb; text-align: right; border-radius: 0 0 8px 8px; flex-shrink: 0; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.full-width { grid-column: span 2; }
+.form-group label { display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.85rem; color: #374151; }
+.form-input, .form-select, .form-textarea { padding: 6px 10px; height: 34px; font-size: 14px; border: 1px solid #d1d5db; border-radius: 4px; width: 100%; box-sizing: border-box; font-family: inherit; }
+textarea.form-input, textarea.form-textarea { height: auto; min-height: 60px; }
+.form-input:focus, .form-select:focus { outline: none; border-color: #4b5563; }
+.drop-zone { border: 2px dashed #d1d5db; border-radius: 6px; padding: 30px; text-align: center; background: #f9fafb; cursor: pointer; transition: all 0.2s; min-height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.drop-zone:hover { border-color: #4b5563; background: #f3f4f6; }
+.drop-zone.dragover { border-color: #2563eb; background: #eff6ff; }
+.drop-zone-text { color: #6b7280; font-size: 0.95rem; margin: 0; }
+.drop-zone-file-name { display: none; color: #2563eb; font-weight: 500; font-size: 1rem; margin: 0; }
+
+/* Пагінація */
+.pagination-wrapper {
+    margin-top: 10px;
+    text-align: right; /* Справа */
+}
+
+.pagination-simple {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.page-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px; /* Менші розміри (було 8px 16px) */
+    font-size: 0.85rem;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.2s;
+}
+
+.page-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.page-btn i {
+    font-size: 1rem;
+}

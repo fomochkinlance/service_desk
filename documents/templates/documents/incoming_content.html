@@ -1,0 +1,177 @@
+{% load extra_tags %}
+<div class="page-header">
+    <div class="header-left-section">
+        <h2><i class="ph ph-folder-open"></i> Вхідні документи</h2>
+        
+        <div class="search-controls">
+            <button class="btn-reset" title="Оновити"
+                    hx-get="{% url 'documents:incoming_list' %}"
+                    hx-target="#main-content"
+                    hx-swap="innerHTML">
+                <i class="ph ph-arrows-clockwise"></i>
+            </button>
+
+            <form class="global-search-form" 
+                  hx-get="{% url 'documents:incoming_list' %}"
+                  hx-target="#main-content"
+                  hx-swap="innerHTML"
+                  hx-trigger="input delay:1500ms">
+                  
+                <input type="text" name="q" placeholder="Глобальний пошук..." 
+                       value="{{ request.GET.q|default:'' }}" class="global-search-input">
+                <button type="submit" class="btn-global-search">
+                    <i class="ph ph-magnifying-glass"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="actions-group">
+        <button class="btn-primary"
+                hx-get="{% url 'documents:create_document' %}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML">
+            <i class="ph ph-plus"></i> Нова заявка
+        </button>
+    </div>
+</div>
+
+<div class="table-container">
+    <table class="data-table">
+        <colgroup>
+            <col style="width: 50px">
+               <col style="width: 140px">
+                 <col style="width: 20%">
+                     <col style="width: 130px">
+                       <col style="width: 12%">
+                           <col style="width: 13%">
+                               <col style="width: 13%">
+                                   <col style="width: 110px">
+                                     <col style="width: 140px">
+                                      </colgroup>
+
+        <thead>
+            <tr>
+                <th></th>
+                <th>
+                    <input type="date" name="search_created_at" 
+                           class="column-search-input"
+                           hx-get="{% url 'documents:incoming_list' %}"
+                           hx-target="#main-content"
+                           hx-swap="innerHTML"
+                           hx-trigger="change"
+                           value="{{ request.GET.search_created_at|default:'' }}">
+                </th>
+                <th>
+                    <input type="text" name="search_full_name" placeholder="ПІБ" 
+                           class="column-search-input"
+                           hx-get="{% url 'documents:incoming_list' %}"
+                           hx-target="#main-content"
+                           hx-swap="innerHTML"
+                           hx-trigger="input delay:1500ms"
+                           value="{{ request.GET.search_full_name|default:'' }}">
+                </th>
+                <th>
+                    <input type="text" name="search_identifier" placeholder="ID..." 
+                           class="column-search-input"
+                           hx-get="{% url 'documents:incoming_list' %}"
+                           hx-target="#main-content"
+                           hx-swap="innerHTML"
+                           hx-trigger="input delay:1500ms"
+                           value="{{ request.GET.search_identifier|default:'' }}">
+                </th>
+                <th>
+                    <select name="search_channel" class="column-search-input"
+                            hx-get="{% url 'documents:incoming_list' %}"
+                            hx-target="#main-content"
+                            hx-swap="innerHTML"
+                            hx-trigger="change">
+                        <option value="">Всі</option>
+                        {% for code, label in channel_choices %}
+                            <option value="{{ code }}" {% if request.GET.search_channel == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>
+                    <select name="search_request_type" class="column-search-input"
+                            hx-get="{% url 'documents:incoming_list' %}"
+                            hx-target="#main-content"
+                            hx-swap="innerHTML"
+                            hx-trigger="change">
+                        <option value="">Всі</option>
+                        {% for code, label in type_choices %}
+                            <option value="{{ code }}" {% if request.GET.search_request_type == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>
+                    <select name="search_department" class="column-search-input"
+                            hx-get="{% url 'documents:incoming_list' %}"
+                            hx-target="#main-content"
+                            hx-swap="innerHTML"
+                            hx-trigger="change">
+                        <option value="">Всі</option>
+                        {% for dept in departments %}
+                            <option value="{{ dept.id }}" {% if request.GET.search_department|add:"0" == dept.id %}selected{% endif %}>{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>
+                    <select name="search_status" class="column-search-input"
+                            hx-get="{% url 'documents:incoming_list' %}"
+                            hx-target="#main-content"
+                            hx-swap="innerHTML"
+                            hx-trigger="change">
+                        <option value="">Всі</option>
+                        {% for code, label in status_choices %}
+                            <option value="{{ code }}" {% if request.GET.search_status == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th></th>
+            </tr>
+
+            <tr>
+                <th></th>
+                <th>Дата ств.</th>
+                <th>ПІБ Клієнта</th>
+                <th>Ідентифікатор</th>
+                <th>Канал зв'язку</th>
+                <th>Тип запиту</th>
+                <th>Департамент</th>
+                <th>Статус</th>
+                <th>Оновлено</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% include "documents/partials/table_rows.html" %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Пагінація -->
+{% if page_obj.has_other_pages %}
+<div class="pagination-wrapper">
+    <div class="pagination-simple">
+        {% if page_obj.has_previous %}
+            <button class="page-btn prev-btn"
+                    hx-get="{% url 'documents:incoming_list' %}?{% url_replace request 'page' page_obj.previous_page_number %}"
+                    hx-target="#main-content"
+                    hx-swap="innerHTML">
+                <i class="ph ph-caret-left"></i> Попередня
+            </button>
+        {% endif %}
+
+        {% if page_obj.has_next %}
+            <button class="page-btn next-btn"
+                    hx-get="{% url 'documents:incoming_list' %}?{% url_replace request 'page' page_obj.next_page_number %}"
+                    hx-target="#main-content"
+                    hx-swap="innerHTML">
+                Наступна <i class="ph ph-caret-right"></i>
+            </button>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<div id="modal-container"></div>

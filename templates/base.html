@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Service Desk</title>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/documents.css' %}">
+    <link rel="stylesheet" href="{% static 'css/document_detail.css' %}">
+    
+    <script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar-container');
+        sidebar.classList.toggle('collapsed');
+        
+        // Запам'ятовуємо вибір користувача
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
+    }
+
+    function toggleSubmenu(element) {
+        const sidebar = document.getElementById('sidebar-container');
+        
+        // Якщо меню згорнуте -> розгортаємо його
+        if (sidebar.classList.contains('collapsed')) {
+            toggleSidebar(); // Використовуємо загальну функцію, щоб оновити і пам'ять
+            
+            setTimeout(() => {
+                const parentItem = element.closest('.bm-item');
+                if(parentItem) parentItem.classList.toggle('active');
+            }, 100);
+        } else {
+            const parentItem = element.closest('.bm-item');
+            // Аккордеон (закриваємо інші)
+            document.querySelectorAll('.bm-item.active').forEach(item => {
+                if (item !== parentItem) item.classList.remove('active');
+            });
+            if(parentItem) parentItem.classList.toggle('active');
+        }
+    }
+
+    // ЛОГІКА ЗАВАНТАЖЕННЯ:
+    document.addEventListener('DOMContentLoaded', () => {
+        // Отримуємо стан з пам'яті
+        const savedState = localStorage.getItem('sidebarCollapsed');
+        const sidebar = document.getElementById('sidebar-container');
+
+        // Логіка:
+        // Якщо в пам'яті чітко написано 'true' -> згортаємо.
+        // У всіх інших випадках (пусто, 'false', перший візит) -> залишаємо РОЗГОРНУТИМ.
+        if (savedState === 'true') {
+            sidebar.classList.add('collapsed');
+        } else {
+            sidebar.classList.remove('collapsed');
+        }
+    });
+</script>
+</head>
+<body>
+    <header id="global-header">
+        <div class="header-left">
+            <button id="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="ph ph-list" style="font-size: 24px;"></i>
+            </button>
+            <span class="app-title">Service Desk</span>
+        </div>
+
+        <div class="header-right">
+            {% if user.is_authenticated %}
+                <span style="margin-right: 20px; color: #4b5563; font-weight: 500;">
+                    {{ user.get_full_name|default:user.username }}
+                </span>
+                <a href="{% url 'accounts:logout' %}" title="Вийти"
+                   style="color: #ef4444; text-decoration: none;">
+                    <i class="ph ph-sign-out" style="font-size: 24px;"></i>
+                </a>
+            {% else %}
+                <i class="ph ph-user-circle" style="font-size: 24px; color: #9ca3af;"></i>
+            {% endif %}
+        </div>
+    </header>
+
+    <div id="layout-body">
+        <div id="sidebar-container">
+            {% include "sidebar.html" %}
+        </div>
+
+        <main id="main-content">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+</body>
+</html>
