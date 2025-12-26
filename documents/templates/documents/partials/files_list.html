@@ -1,0 +1,73 @@
+<div class="layout-grid"> 
+    
+    <div class="files-container" style="grid-column: 1 / -1; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3>Документи заявки</h3>
+            
+            <button class="btn-outline"
+                    hx-get="{% url 'documents:document_detail' document.id %}"
+                    hx-target="#main-content"
+                    hx-swap="innerHTML">
+                <i class="ph ph-arrow-left"></i> Повернутися до інформації
+            </button>
+        </div>
+
+        <form class="upload-box" 
+              hx-post="{% url 'documents:upload_file' document.id %}" 
+              hx-encoding="multipart/form-data"
+              hx-target=".layout-grid"
+              hx-swap="outerHTML"
+              style="border: 2px dashed #ccc; padding: 30px; text-align: center; margin-bottom: 20px; border-radius: 8px; background: #f9f9f9;">
+            
+            {% csrf_token %}
+            <i class="ph ph-upload-simple" style="font-size: 2rem; color: #6c757d;"></i>
+            <p style="margin: 10px 0;">Оберіть файл для завантаження</p>
+            <input type="file" name="file" required>
+            <button type="submit" class="btn-primary" style="margin-left: 10px;">Завантажити</button>
+        </form>
+
+        <div class="files-list">
+            {% if files %}
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #eee; text-align: left; color: #6c757d;">
+                            <th style="padding: 10px;">Назва файлу</th>
+                            <th>Хто додав</th>
+                            <th>Дата</th>
+                            <th style="text-align: right;">Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in files %}
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 10px;">
+                                <a href="{{ file.file.url }}" target="_blank" style="text-decoration: none; color: #007bff; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                                    <i class="ph ph-file"></i> {{ file.filename }}
+                                </a>
+                            </td>
+                            <td>{{ file.uploaded_by.get_full_name|default:file.uploaded_by.username }}</td>
+                            <td>{{ file.uploaded_at|date:"d.m.Y H:i" }}</td>
+                            <td style="text-align: right;">
+                                <button class="btn-icon danger"
+        hx-post="{% url 'documents:delete_file' file.id %}"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        hx-confirm="Ви впевнені, що хочете видалити цей файл?"
+        hx-target=".layout-grid"
+        hx-swap="outerHTML"
+        title="Видалити">
+    <i class="ph ph-trash"></i>
+</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div style="text-align: center; padding: 20px; color: #6c757d;">
+                    Файлів поки немає.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

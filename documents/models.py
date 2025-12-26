@@ -1,4 +1,5 @@
 # documents/models.py
+import os
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -87,3 +88,20 @@ class DocumentHistory(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class Attachment(models.Model):
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='attachments')
+    file = models.FileField(upload_to='attachments/%Y/%m/%d/')
+    filename = models.CharField(max_length=255, blank=True)
+    uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        # Якщо ім'я не задано, беремо його з файлу
+        if not self.filename and self.file:
+            self.filename = os.path.basename(self.file.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.filename

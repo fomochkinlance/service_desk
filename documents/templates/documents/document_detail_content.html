@@ -65,9 +65,12 @@
             </div>
         </details>
 
-        <button class="btn-action">
-            <i class="ph ph-files"></i> Документи
-        </button>
+        <button class="btn-action"
+        hx-get="{% url 'documents:document_files' document.id %}"
+        hx-target=".layout-grid" 
+        hx-swap="outerHTML">
+    <i class="ph ph-files"></i> Документи
+</button>>
 
         <button class="btn-action btn-danger-outline" 
                 hx-post="{% url 'documents:close_document' document.id %}"

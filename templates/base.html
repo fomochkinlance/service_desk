@@ -95,5 +95,39 @@
             {% endblock %}
         </main>
     </div>
+    <div id="toast-container" class="toast-container"></div>
+
+<script>
+    document.body.addEventListener("showMessage", function(evt){
+        const data = evt.detail; // Отримуємо дані з події
+        showToast(data.message, data.level);
+    });
+
+    function showToast(message, level = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${level}`;
+        // Іконки залежно від типу
+        const icon = level === 'success' ? 'ph-check-circle' : 'ph-warning-circle';
+        
+        toast.innerHTML = `
+            <i class="ph ${icon}"></i>
+            <span>${message}</span>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Анімація
+        requestAnimationFrame(() => {
+            toast.classList.add('show');
+        });
+
+        // Видалення через 3 сек
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+</script>
 </body>
 </html>

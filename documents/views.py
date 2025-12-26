@@ -1,11 +1,21 @@
 from django.shortcuts import render, get_object_or_404, redirect
+import json
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from django.db.models import Q
-# Переконайтеся, що всі моделі імпортовані
 from .models import Document, Department, Comment, DocumentHistory
+from .models import Attachment
 from .forms import DocumentForm
+
+
+def trigger_toast(response, message, level='success'):
+    """Додає заголовок для HTMX, щоб показати повідомлення"""
+    trigger_data = {'showMessage': {'message': message, 'level': level}}
+    response['HX-Trigger'] = json.dumps(trigger_data)
+    return response
+
 
 @login_required
 def incoming_list(request):
@@ -108,21 +118,21 @@ def document_detail(request, pk):
 @login_required
 @require_POST
 def update_status(request, pk):
-    print("--- ЗАПИТ НА ЗМІНУ СТАТУСУ ---")
     document = get_object_or_404(Document, pk=pk)
     new_status_code = request.POST.get('status')
     
-    # Перевірка, чи статус дійсно змінився і документ не закритий
+    # За замовчуванням повідомлення про помилку або відсутність змін
+    msg = "Статус не змінено"
+    level = "error"
+
     if new_status_code and new_status_code != document.status and not document.is_closed:
         old_status_display = document.get_status_display()
         
         document.status = new_status_code
         document.save()
         
-        # Отримуємо нове відображення статусу
         new_status_display = document.get_status_display()
         
-        # Створюємо запис в історії
         DocumentHistory.objects.create(
             document=document,
             user=request.user,
@@ -130,11 +140,13 @@ def update_status(request, pk):
             old_value=old_status_display,
             new_value=new_status_display
         )
-        print("Статус оновлено та записано в історію")
-    
-    # ВИПРАВЛЕНО: Redirect замість render (Pattern PRG)
-    # Переконайтеся, що 'documents:document_detail' відповідає вашому urls.py
-    return redirect('documents:document_detail', pk=pk)
+        
+        msg = f"Статус змінено на: {new_status_display}"
+        level = "success"
+
+    # Замість redirect викликаємо відображення сторінки
+    response = document_detail(request, pk)
+    return trigger_toast(response, msg, level)
 
 @login_required
 @require_POST
@@ -142,6 +154,9 @@ def update_department(request, pk):
     document = get_object_or_404(Document, pk=pk)
     dept_id = request.POST.get('department')
     
+    msg = "Департамент не змінено"
+    level = "error"
+
     if dept_id and not document.is_closed:
         if str(document.department_id) != str(dept_id):
             
@@ -160,9 +175,13 @@ def update_department(request, pk):
                 old_value=old_dept_name,
                 new_value=new_dept_name
             )
+            
+            msg = f"Передано в департамент: {new_dept_name}"
+            level = "success"
 
-    # ВИПРАВЛЕНО: Redirect
-    return redirect('documents:document_detail', pk=pk)
+    # Викликаємо відображення та чіпляємо тост
+    response = document_detail(request, pk)
+    return trigger_toast(response, msg, level)
 
 @login_required
 def close_document(request, pk):
@@ -180,14 +199,74 @@ def add_comment(request, pk):
     
     if request.method == "POST":
         text = request.POST.get('text')
-        if text:
+        
+        # Перевіряємо, чи є текст
+        if text and text.strip():
             Comment.objects.create(
                 document=document,
                 user=request.user, 
                 text=text
             )
-            # Тут можна залишити render, якщо це AJAX/HTMX запит на оновлення списку коментарів
+            
+            # Отримуємо оновлений список коментарів
             comments = document.comments.select_related('user').order_by('-created_at')
-            return render(request, "documents/partials/comments_list.html", {'comments': comments})
+            
+            # Рендеримо список
+            response = render(request, "documents/partials/comments_list.html", {'comments': comments})
+            
+            # Чіпляємо повідомлення про успіх
+            return trigger_toast(response, "Коментар додано")
+        
+        else:
+            # Якщо текст порожній - повертаємо старий список (або нічого) і помилку
+            comments = document.comments.select_related('user').order_by('-created_at')
+            response = render(request, "documents/partials/comments_list.html", {'comments': comments})
+            return trigger_toast(response, "Коментар не може бути порожнім", "error")
     
+    # GET-запит (відкриття модалки)
     return render(request, "documents/partials/comment_modal.html", {'document': document})
+
+@login_required
+def document_files(request, pk):
+    document = get_object_or_404(Document, pk=pk)
+    files = document.attachments.select_related('uploaded_by').order_by('-uploaded_at')
+    
+    return render(request, 'documents/partials/files_list.html', {
+        'document': document, 
+        'files': files
+    })
+
+@login_required
+@require_POST
+def upload_file(request, pk):
+    document = get_object_or_404(Document, pk=pk)
+    
+    if 'file' in request.FILES:
+        file = request.FILES['file']
+        Attachment.objects.create(
+            document=document,
+            file=file,
+            uploaded_by=request.user,
+            filename=file.name
+        )
+        # Оновлюємо список і кажемо "Успіх"
+        response = document_files(request, pk)
+        return trigger_toast(response, "Файл успішно завантажено")
+    
+    # Якщо помилка
+    response = document_files(request, pk)
+    return trigger_toast(response, "Помилка завантаження файлу", "error")
+
+@login_required
+@require_POST
+def delete_file(request, pk):
+    attachment = get_object_or_404(Attachment, pk=pk)
+    doc_id = attachment.document.id # Запам'ятовуємо ID документа, щоб повернутися
+    
+    # Видаляємо
+    attachment.file.delete()
+    attachment.delete()
+    
+    # Повертаємо оновлений список
+    response = document_files(request, doc_id)
+    return trigger_toast(response, "Файл видалено")
